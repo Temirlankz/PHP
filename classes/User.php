@@ -14,4 +14,16 @@ class User {
         $stmt->bind_param("sss", $username, $password_hash, $aes_key_encrypted);
         return $stmt->execute();
     }
+    public function login($username, $password) {
+        $stmt = $this->conn->prepare("SELECT id, password_hash FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $stmt->bind_result($id, $password_hash);
+        if ($stmt->fetch() && password_verify($password, $password_hash)) {
+            $_SESSION['user_id'] = $id;
+            $_SESSION['username'] = $username;
+            return true;
+        }
+        return false;
+    }
 }
